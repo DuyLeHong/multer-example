@@ -13,7 +13,7 @@ var storage = multer.diskStorage({
 
         dir = './uploads';
 
-        if (!fs.existsSync(dir)){
+        if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
 
@@ -31,9 +31,16 @@ var storage = multer.diskStorage({
     }
 })
 
-var upload = multer({ storage: storage })
+var upload = multer({ storage: storage, limits: { fileSize: 2 * 1024 * 1024 } })
 
-app.post('/uploadfile', upload.single('myFile'), (req, res, next) => {
+let uploadSingleFile = upload.single('myFile', (err) => {
+
+    if (err instanceof multer.MulterError) {
+        console.log('Dung luong file qua lon! Hay thu lai!');
+    }
+});
+
+app.post('/uploadfile', uploadSingleFile, (req, res, next) => {
     const file = req.file
     if (!file) {
         const error = new Error('Please upload a file')
